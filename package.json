@@ -3,10 +3,6 @@
   "version": "0.0.1",
   "description": "Cabans Gulp Kit",
   "main": "gulpfile.js",
-  "scripts": {
-    "start": "gulp",
-    "production": "gulp build --production"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cabans/gulp4-kit.git"
@@ -21,11 +17,18 @@
   },
   "homepage": "https://github.com/cabans/gulp4-kit#readme",
   "devDependencies": {
-    "gulp": "^4.0.0",
-    "gulp-notify": "^3.2.0"
-  },
-  "dependencies": {
     "beeper": "^1.1.1",
+    "gulp": "^4.0.0",
+    "gulp-clean-css": "^4.0.0",
+    "gulp-merge-media-queries": "^0.2.1",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-sass": "^4.0.1",
+    "gulp-sourcemaps": "^2.6.4",
     "yargs": "^12.0.5"
+  },
+  "scripts": {
+    "start": "gulp",
+    "prod": "gulp build --prod"
   }
 }
