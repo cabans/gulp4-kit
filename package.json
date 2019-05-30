@@ -1,34 +1,46 @@
 {
-  "name": "cabans-gulp-kit",
-  "version": "0.0.1",
-  "description": "Cabans Gulp Kit",
-  "main": "gulpfile.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cabans/gulp4-kit.git"
-  },
-  "keywords": [
-    "gulp"
-  ],
   "author": "Abel Cabans",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cabans/gulp4-kit/issues"
   },
-  "homepage": "https://github.com/cabans/gulp4-kit#readme",
+  "description": "Cabans Gulp Kit",
   "devDependencies": {
+    "autoprefixer": "^9.4.4",
     "beeper": "^1.1.1",
-    "gulp": "^4.0.0",
-    "gulp-clean-css": "^4.0.0",
+    "browser-sync": "^2.26.5",
+    "cross-env": "^5.2.0",
+    "del": "^3.0.0",
+    "gulp": "^4.0.2",
+    "gulp-cssnano": "^2.1.3",
+    "gulp-if": "^2.0.2",
+    "gulp-load-plugins": "^1.2.4",
     "gulp-merge-media-queries": "^0.2.1",
     "gulp-notify": "^3.2.0",
     "gulp-plumber": "^1.2.1",
     "gulp-sass": "^4.0.1",
-    "gulp-sourcemaps": "^2.6.4",
+    "gulp-sourcemaps": "^2.6.5",
     "yargs": "^12.0.5"
   },
+  "engines": {
+    "node": ">=6"
+  },
+  "homepage": "https://github.com/cabans/gulp4-kit#readme",
+  "keywords": [
+    "gulp4"
+  ],
+  "license": "MIT",
+  "main": "gulpfile.js",
+  "name": "cabans-gulp-kit",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cabans/gulp4-kit.git"
+  },
   "scripts": {
-    "start": "gulp",
-    "prod": "gulp build --prod"
-  }
+    "build": "cross-env NODE_ENV=production gulp",
+    "size": "gulp size",
+    "start": "gulp serve",
+    "tasks": "gulp --tasks"
+  },
+  "version": "0.0.2"
 }
