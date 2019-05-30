@@ -1,7 +1,7 @@
 @import 'base/media-queries';
 
 body {
-	background: yellowgreen;
+	background: yellow;
 
 	@include min-screen(768px) {
 		margin-left: auto;

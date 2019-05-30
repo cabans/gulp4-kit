@@ -13,7 +13,7 @@ const beeper = require('beeper');
 const del = require('del');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
-const { argv } = require('yargs');
+//const { argv } = require('yargs');
 
 const $ = gulpLoadPlugins();
 const server = browserSync.create();
@@ -37,8 +37,6 @@ function errorHandler(err) {
 
 /**
  * STYLES
- *
- * @param {callback} cb
  */
 function styles() {
 	return src(config.styles.src)
@@ -56,6 +54,22 @@ function styles() {
 
 
 
+/**
+ * SCRIPTS
+ *
+ * @return  {[type]}  [return description]
+ */
+function scripts() {
+	return src(config.scripts.src)
+	.pipe( $.plumber( errorHandler ) )
+	.pipe( $.if(!isProd, $.sourcemaps.init()) )
+	.pipe( $.concat('main.js') )
+	.pipe( $.if( !isProd, $.sourcemaps.write('.') ) )
+	.pipe( dest(config.scripts.dest) )
+	.pipe( server.reload({stream: true}) );
+};
+
+
 // Clean dist folder
 function clean() {
 	return del([config.folder.build]);
@@ -64,9 +78,9 @@ function clean() {
 
 
 // Templates generation
-function template() {
-	return src(config.template.src)
-		.pipe( dest(config.template.dest) );
+function templates() {
+	return src(config.templates.src)
+		.pipe( dest(config.templates.dest) );
 };
 
 
@@ -85,15 +99,41 @@ function measureSize() {
 		.pipe( $.size({ title: '📁  BUILD size with', gzip: true }) );
 }
 
+/**
+ * Launch Browsersync server watchers
+ *
+ */
+function startServer() {
+	server.init({
+		notify: false,
+		port: config.server.port,
+		proxy: config.server.proxy,
+		baseDir: config.server.baseDir,
+		host: config.server.host,
+		// startPath: config.server.startPath,
+		// baseDir: config.server.baseDir,
+		open: config.server.open
+	});
+
+	watch(config.styles.src, styles);
+	watch(config.scripts.src, scripts);
+	watch(config.templates.src).on('change', server.reload);
+	watch(config.extra).on('change', server.reload);
+}
+
+
+
+
+
 
 // Main tasks
-const build = series( clean, template, parallel(extra, styles) );
-const serve = series( clean, template, parallel(extra, styles) );
+const build = series( clean, parallel(styles, scripts, templates, extra) );
+const serve = series( clean, series( parallel(styles, scripts, templates, extra), startServer) );
 
 
 
 // Exports
-exports.template = template;
+exports.templates = templates;
 exports.clean = clean;
 exports.size = measureSize;
 
