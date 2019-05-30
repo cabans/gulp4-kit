@@ -22,6 +22,7 @@ const server = browserSync.create();
 const isProd = process.env.NODE_ENV === 'production';
 
 
+
 /**
  * ERROR HANDLER
  *
@@ -54,10 +55,12 @@ function styles() {
 };
 
 
+
 // Clean dist folder
 function clean() {
 	return del([config.folder.build]);
 }
+
 
 
 // Templates generation
@@ -67,12 +70,20 @@ function template() {
 };
 
 
+
 // Extra file movements
 function extra() {
 	return src(config.extra, {
 		base: config.folder.source
 	}).pipe( dest(config.folder.assets) );
 };
+
+
+// Gets build folder size
+function measureSize() {
+	return src( config.folder.build + '/**/*' )
+		.pipe( $.size({ title: '📁  BUILD size with', gzip: true }) );
+}
 
 
 // Main tasks
@@ -84,6 +95,7 @@ const serve = series( clean, template, parallel(extra, styles) );
 // Exports
 exports.template = template;
 exports.clean = clean;
+exports.size = measureSize;
 
 // Main tasks export
 exports.serve = serve;
