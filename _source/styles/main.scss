@@ -11,7 +11,9 @@ body {
 		grid-template-columns: 1fr 1fr;
 	}
 }
-
+.dummy {
+	background: pink;
+}
 .something {
 	background: pink;
 
@@ -19,6 +21,8 @@ body {
 		background: yellow;
 	}
 }
+
+
 
 ::placeholder {
 	color: gray;

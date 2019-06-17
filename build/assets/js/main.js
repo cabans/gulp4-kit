@@ -1,17 +1,2 @@
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var TestClass = function TestClass() {
-  _classCallCheck(this, TestClass);
-
-  this.dummyClass = 'Something';
-};
-"use strict";
-
-// Dummy script
-(function ($) {
-  console.log('Say hello to my little friend!!');
-  $('body').css('font-family', 'sans-serif');
-})(jQuery);
-//# sourceMappingURL=main.js.map
+"use strict";function _classCallCheck(s,a){if(!(s instanceof a))throw new TypeError("Cannot call a class as a function")}var TestClass=function s(){_classCallCheck(this,s),this.dummyClass="Something"};
+"use strict";jQuery("body").css("font-family","sans-serif");

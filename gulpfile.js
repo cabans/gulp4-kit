@@ -12,15 +12,10 @@ const gulpLoadPlugins = require('gulp-load-plugins');
 
 const beeper = require('beeper');
 const del = require('del');
-
-// const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
-const csso = require('postcss-csso');
-
-const { argv } = require('yargs');
+const server = require('browser-sync').create();
 
 const $ = gulpLoadPlugins();
-const server = require('browser-sync').create();
 
 // Is production
 const isProd = process.env.NODE_ENV === 'production';
@@ -45,23 +40,52 @@ function errorHandler(err) {
  * STYLES
  */
 function styles() {
-	return src(config.styles.src)
-	.pipe( $.plumber( errorHandler ) )
-	.pipe( $.if(!isProd, $.sourcemaps.init()) )
-	.pipe( $.sass.sync( {
-		outputStyle: 'expanded', // Options → 'compact', 'compressed', 'nested'* or 'expanded'
-		precision: 6,
-		includePaths: ['.']
-	}))
-	.pipe( $.if(isProd, $.postcss([
-			autoprefixer(config.browserList),
-			csso({comments: false, restructure: false, forceMediaMerge: true})
-		])),
-		del([config.styles.dest + '/*.map']) // Removes every map file
-	)
-	.pipe( $.if(!isProd, $.sourcemaps.write('.')) )
-	.pipe( dest(config.styles.dest) )
-	.pipe( server.reload({stream:true}) );
+
+	// If is development
+	if (!isProd) {
+
+		return src(config.styles.src)
+			.pipe($.plumber(errorHandler))
+			.pipe($.sourcemaps.init())
+			.pipe($.sass.sync({
+				outputStyle: 'compact', // Options → 'compact', 'compressed', 'nested'* or 'expanded'
+				precision: 6,
+				includePaths: ['.']
+			}))
+			// Why postcss? https://stackoverflow.com/a/42317592
+			.pipe($.postcss([autoprefixer(config.browserList)]))
+			.pipe($.sourcemaps.write('.'))
+			.pipe(dest(config.styles.dest))
+			.pipe(server.reload({ stream: true }));
+
+	} else {
+
+		// If is production
+		del([config.styles.dest + '/*.map']); // removes local map files
+
+		return src(config.styles.src)
+			.pipe($.plumber(errorHandler))
+			.pipe($.sass.sync({
+				precision: 6,
+				includePaths: ['.']
+			}))
+			.pipe($.postcss([autoprefixer(config.browserList)]))
+			.pipe($.cleanCss({
+				level: {
+					1: {
+						semicolonAfterLastProperty: true
+					},
+					2: {
+						// mergeNonAdjacentRules: true,
+						mergeAdjacentRules: true,
+						mergeMedia: true, // controls `@media` merging; defaults to true
+					}
+				}
+			})
+			)
+			.pipe(dest(config.styles.dest));
+
+	} // end if
 };
 
 
@@ -72,22 +96,28 @@ function styles() {
  * @return  {[type]}  [return description]
  */
 function scripts() {
-	return src(config.scripts.src)
-	.pipe( $.plumber( errorHandler ) )
-	.pipe( $.if(!isProd, $.sourcemaps.init()) )
-	.pipe( $.babel({
-		presets: ['@babel/env']
-	}))
-	.pipe( $.if( isProd,
-		$.uglify( {
-			compress: {drop_console: true}} // Remove evey console.*
-		).on('error', console.error) ),
-		del([config.scripts.dest + '/*.map']) // Removes every map file
-	)
-	.pipe( $.concat('main.js') )
-	.pipe( $.if( !isProd, $.sourcemaps.write('.') ))
-	.pipe( dest(config.scripts.dest) )
-	.pipe( server.reload({stream: true}) );
+	// If is development
+	if (!isProd) {
+		return src(config.scripts.src)
+			.pipe( $.plumber(errorHandler) )
+			.pipe( $.sourcemaps.init() )
+			.pipe($.babel({ presets: ['@babel/env'] }))
+			.pipe( $.concat('main.js') )
+			.pipe( $.sourcemaps.write('.') )
+			.pipe(dest(config.scripts.dest))
+			.pipe(server.reload({ stream: true }));
+	} else {
+		// If is production
+		del([config.scripts.dest + '/*.map']); // removes local map files
+
+		return src(config.scripts.src)
+			.pipe( $.plumber(errorHandler) )
+			.pipe($.babel({ presets: ['@babel/env'] }))
+			// Removes every console.log, console.info, ...
+			.pipe( $.uglify({ compress: { drop_console: true } }).on('error', console.error) )
+			.pipe($.concat('main.js'))
+			.pipe(dest(config.scripts.dest));
+	}
 };
 
 
@@ -104,7 +134,7 @@ function clean() {
 // Templates generation
 function templates() {
 	return src(config.templates.src)
-		.pipe( dest(config.templates.dest) );
+		.pipe(dest(config.templates.dest));
 };
 
 
@@ -114,14 +144,14 @@ function templates() {
 function extra() {
 	return src(config.extra, {
 		base: config.folder.source
-	}).pipe( dest(config.folder.assets) );
+	}).pipe(dest(config.folder.assets));
 };
 
 
 // Gets build folder size
 function measureSize() {
-	return src( config.folder.build + '/**/*' )
-		.pipe( $.size({ title: '📁  BUILD size with', gzip: true }) );
+	return src(config.folder.build + '/**/*')
+		.pipe($.size({ title: '📁  BUILD size with', gzip: true }));
 }
 
 
@@ -150,8 +180,8 @@ function startServer(done) {
 
 
 // Main tasks
-const build = series( clean, parallel(styles, scripts, templates, extra) );
-const serve = series( clean, series( parallel(styles, scripts, templates, extra), startServer) );
+const build = series(clean, parallel(styles, scripts, templates, extra));
+const serve = series(clean, series(parallel(styles, scripts, templates, extra), startServer));
 
 
 

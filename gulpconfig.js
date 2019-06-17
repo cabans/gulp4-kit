@@ -45,6 +45,15 @@ module.exports = {
 		dest: './build/assets/css',
 	},
 
+	// Scripts options
+	scripts: {
+		src: [
+			'./_source/scripts/partials/**/*.js',
+			'./_source/scripts/app.js'
+		],
+		dest: './build/assets/js',
+	},
+
 	browserList: {
 		grid: true,
 		browswers:[
@@ -55,14 +64,7 @@ module.exports = {
 		]
 	},
 
-	// Scripts options
-	scripts: {
-		src: [
-			'./_source/scripts/partials/**/*.js',
-			'./_source/scripts/app.js'
-		],
-		dest: './build/assets/js',
-	},
+
 
 	// Templating options
 	templates: {
