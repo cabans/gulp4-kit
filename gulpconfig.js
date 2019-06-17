@@ -17,24 +17,42 @@ module.exports = {
 		port: 3000,
 		proxy: 'localhost/gulp4/build',
 		host: 'localhost',
-		open: false
-		//startPath: 'index.html'
-		//baseDir: 'build'
+		open: false,
+		startPath: 'index.html',
+		baseDir: 'build'
 	},
 
 	// Extra watchers
 	watch: {
+        "scripts": [
+            "_source/scripts/**/*.js"
+        ],
+        "styles": [
+            "_source/styles/**/*.{scss,sass,css}"
+        ],
+        "extra": [
+            "_source/fonts/**/*",
+            "_source/images/**/*"
+        ],
         "templates": [
-            "app/Resources/views/**/*.html.twig",
-            "web/*.php"
+            "templates/**/*.html"
         ]
 	},
 
 	// Styles options
 	styles: {
-		outputStyle: 'compact', // Options → 'compact', 'compressed', 'nested' or 'expanded'
 		src: './_source/styles/*.{scss,sass,css}',
 		dest: './build/assets/css',
+	},
+
+	browserList: {
+		grid: true,
+		browswers:[
+			"> 1%",
+			"last 2 versions",
+			"ie >= 11",
+			"Firefox ESR"
+		]
 	},
 
 	// Scripts options
@@ -56,6 +74,6 @@ module.exports = {
 	// Extra moving moving
     extra: [
 		"./_source/fonts/**/*.{eot,svg,ttf,woff,woff2}",
-		"./_source/img/**/*.{jpg,svg,png,jpeg,gif}"
+		"./_source/images/**/*.{jpg,svg,png,jpeg,gif}"
     ]
 }
