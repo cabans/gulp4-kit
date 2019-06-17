@@ -3,23 +3,28 @@
  *
  * Just to learn about :)
  */
+'use strict';
+
 const config = require('./gulpconfig.js');
 
 const { src, dest, watch, series, parallel, lastRun } = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
 
-const browserSync = require('browser-sync');
 const beeper = require('beeper');
 const del = require('del');
+
+// const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
-const cssnano = require('cssnano');
-//const { argv } = require('yargs');
+const csso = require('postcss-csso');
+
+const { argv } = require('yargs');
 
 const $ = gulpLoadPlugins();
-const server = browserSync.create();
+const server = require('browser-sync').create();
 
 // Is production
 const isProd = process.env.NODE_ENV === 'production';
+
 
 
 
@@ -35,6 +40,7 @@ function errorHandler(err) {
 
 
 
+
 /**
  * STYLES
  */
@@ -43,13 +49,18 @@ function styles() {
 	.pipe( $.plumber( errorHandler ) )
 	.pipe( $.if(!isProd, $.sourcemaps.init()) )
 	.pipe( $.sass.sync( {
-		outputStyle: config.styles.outputStyle,
-		precision: 10,
+		outputStyle: 'expanded', // Options → 'compact', 'compressed', 'nested'* or 'expanded'
+		precision: 6,
 		includePaths: ['.']
-	}).on('error', $.sass.logError))
-	.pipe( $.if(!isProd, $.sourcemaps.write()) )
+	}))
+	.pipe( $.if(isProd, $.postcss([
+		autoprefixer(config.browserList),
+		csso({comments: false, restructure: false, forceMediaMerge: true}),
+		del([config.scripts.dest + '/*.map']) // Removes every map file
+	])))
+	.pipe( $.if(!isProd, $.sourcemaps.write('.')) )
 	.pipe( dest(config.styles.dest) )
-	.pipe( server.reload({ stream: true }) );
+	.pipe( server.reload({stream:true}) );
 };
 
 
@@ -63,11 +74,22 @@ function scripts() {
 	return src(config.scripts.src)
 	.pipe( $.plumber( errorHandler ) )
 	.pipe( $.if(!isProd, $.sourcemaps.init()) )
+	.pipe( $.babel({
+		presets: ['@babel/env']
+	}))
+	.pipe( $.if( isProd,
+		$.uglify( {
+			compress: {drop_console: true}} // Remove evey console.*
+		).on('error', console.error) ),
+		del([config.scripts.dest + '/*.map']) // Removes every map file
+	)
 	.pipe( $.concat('main.js') )
-	.pipe( $.if( !isProd, $.sourcemaps.write('.') ) )
+	.pipe( $.if( !isProd, $.sourcemaps.write('.') ))
 	.pipe( dest(config.scripts.dest) )
 	.pipe( server.reload({stream: true}) );
 };
+
+
 
 
 // Clean dist folder
@@ -77,11 +99,13 @@ function clean() {
 
 
 
+
 // Templates generation
 function templates() {
 	return src(config.templates.src)
 		.pipe( dest(config.templates.dest) );
 };
+
 
 
 
@@ -99,29 +123,27 @@ function measureSize() {
 		.pipe( $.size({ title: '📁  BUILD size with', gzip: true }) );
 }
 
-/**
- * Launch Browsersync server watchers
- *
- */
-function startServer() {
+
+
+
+function startServer(done) {
 	server.init({
+		server: {
+			baseDir: config.server.baseDir
+		},
 		notify: false,
 		port: config.server.port,
-		proxy: config.server.proxy,
-		baseDir: config.server.baseDir,
-		host: config.server.host,
-		// startPath: config.server.startPath,
-		// baseDir: config.server.baseDir,
+
+		startPath: config.server.startPath,
 		open: config.server.open
 	});
 
-	watch(config.styles.src, styles);
-	watch(config.scripts.src, scripts);
-	watch(config.templates.src).on('change', server.reload);
-	watch(config.extra).on('change', server.reload);
+	watch(config.watch.styles, styles);
+	watch(config.watch.scripts, scripts);
+
+	watch(config.watch.templates).on('change', server.reload); // Non static kit
+	watch(config.watch.extra).on('change', server.reload);
 }
-
-
 
 
 
@@ -132,8 +154,11 @@ const serve = series( clean, series( parallel(styles, scripts, templates, extra)
 
 
 
+
 // Exports
 exports.templates = templates;
+exports.styles = styles;
+exports.scripts = scripts;
 exports.clean = clean;
 exports.size = measureSize;
 
