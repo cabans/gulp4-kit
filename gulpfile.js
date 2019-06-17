@@ -54,10 +54,11 @@ function styles() {
 		includePaths: ['.']
 	}))
 	.pipe( $.if(isProd, $.postcss([
-		autoprefixer(config.browserList),
-		csso({comments: false, restructure: false, forceMediaMerge: true}),
-		del([config.scripts.dest + '/*.map']) // Removes every map file
-	])))
+			autoprefixer(config.browserList),
+			csso({comments: false, restructure: false, forceMediaMerge: true})
+		])),
+		del([config.styles.dest + '/*.map']) // Removes every map file
+	)
 	.pipe( $.if(!isProd, $.sourcemaps.write('.')) )
 	.pipe( dest(config.styles.dest) )
 	.pipe( server.reload({stream:true}) );
