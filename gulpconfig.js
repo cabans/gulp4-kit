@@ -35,7 +35,7 @@ module.exports = {
             "_source/images/**/*"
         ],
         "templates": [
-            "templates/**/*.html"
+            "_source/templates/**/*.html"
         ]
 	},
 
