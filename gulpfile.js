@@ -44,18 +44,16 @@ function styles(cb) {
 	// If is development
 	if (!isProd) {
 
-		return src(config.styles.src)
+		return src(config.styles.src, { sourcemaps: true })
 			.pipe($.plumber(errorHandler))
-			.pipe($.sourcemaps.init())
 			.pipe($.sass.sync({
 				outputStyle: 'compact', // Options → 'compact', 'compressed', 'nested'* or 'expanded'
 				precision: 6,
 				includePaths: ['.']
 			}))
 			// Why postcss? https://stackoverflow.com/a/42317592
-			.pipe($.postcss([autoprefixer(config.browserList)]))
-			.pipe($.sourcemaps.write('.'))
-			.pipe(dest(config.styles.dest))
+			.pipe($.postcss([ autoprefixer(config.browserList) ]))
+			.pipe(dest(config.styles.dest, { sourcemaps: '.' }))
 			.pipe(server.reload({ stream: true }));
 
 	} else {
@@ -101,13 +99,11 @@ function scripts(cb) {
 	// If is development
 	if (!isProd) {
 
-		return src(config.scripts.src)
+		return src(config.scripts.src, { sourcemaps: true })
 			.pipe($.plumber(errorHandler))
-			.pipe($.sourcemaps.init())
 			.pipe($.babel({ presets: ['@babel/env'] }))
 			.pipe($.concat('main.js'))
-			.pipe($.sourcemaps.write('.'))
-			.pipe(dest(config.scripts.dest))
+			.pipe(dest(config.scripts.dest, { sourcemaps: '.' }))
 			.pipe(server.reload({ stream: true }));
 
 	} else {
