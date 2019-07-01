@@ -39,7 +39,7 @@ function errorHandler(err) {
 /**
  * STYLES
  */
-function styles() {
+function styles(cb) {
 
 	// If is development
 	if (!isProd) {
@@ -86,6 +86,8 @@ function styles() {
 			.pipe(dest(config.styles.dest));
 
 	} // end if
+
+	cb();
 };
 
 
@@ -93,33 +95,37 @@ function styles() {
 /**
  * SCRIPTS
  *
- * @return  {[type]}  [return description]
  */
-function scripts() {
+function scripts(cb) {
+
 	// If is development
 	if (!isProd) {
+
 		return src(config.scripts.src)
-			.pipe( $.plumber(errorHandler) )
-			.pipe( $.sourcemaps.init() )
+			.pipe($.plumber(errorHandler))
+			.pipe($.sourcemaps.init())
 			.pipe($.babel({ presets: ['@babel/env'] }))
-			.pipe( $.concat('main.js') )
-			.pipe( $.sourcemaps.write('.') )
+			.pipe($.concat('main.js'))
+			.pipe($.sourcemaps.write('.'))
 			.pipe(dest(config.scripts.dest))
 			.pipe(server.reload({ stream: true }));
+
 	} else {
+
 		// If is production
 		del([config.scripts.dest + '/*.map']); // removes local map files
 
 		return src(config.scripts.src)
-			.pipe( $.plumber(errorHandler) )
+			.pipe($.plumber(errorHandler))
 			.pipe($.babel({ presets: ['@babel/env'] }))
 			// Removes every console.log, console.info, ...
-			.pipe( $.uglify({ compress: { drop_console: true } }).on('error', console.error) )
+			.pipe($.uglify({ compress: { drop_console: true } }).on('error', console.error))
 			.pipe($.concat('main.js'))
 			.pipe(dest(config.scripts.dest));
 	}
-};
 
+	cb();
+};
 
 
 
@@ -127,7 +133,6 @@ function scripts() {
 function clean() {
 	return del([config.folder.build]);
 }
-
 
 
 
@@ -139,13 +144,13 @@ function templates() {
 
 
 
-
 // Extra file movements
 function extra() {
 	return src(config.extra, {
 		base: config.folder.source
 	}).pipe(dest(config.folder.assets));
 };
+
 
 
 // Gets build folder size
@@ -156,8 +161,7 @@ function measureSize() {
 
 
 
-
-function startServer(done) {
+function startServer() {
 	server.init({
 		server: {
 			baseDir: config.server.baseDir
@@ -172,8 +176,8 @@ function startServer(done) {
 	watch(config.watch.styles, styles);
 	watch(config.watch.scripts, scripts);
 
-	watch(config.watch.templates).on('change', server.reload); // Non static kit
-	watch(config.watch.extra).on('change', server.reload);
+	watch(config.watch.templates, templates).on('change', server.reload); // Non static kit
+	watch(config.watch.extra, extra).on('change', server.reload);
 }
 
 
@@ -181,7 +185,7 @@ function startServer(done) {
 
 // Main tasks
 const build = series(clean, parallel(styles, scripts, templates, extra));
-const serve = series(clean, series(parallel(styles, scripts, templates, extra), startServer));
+const serve = series(clean, parallel(styles, scripts, templates, extra), startServer);
 
 
 
