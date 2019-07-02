@@ -13,6 +13,7 @@ const gulpLoadPlugins = require('gulp-load-plugins');
 const beeper = require('beeper');
 const del = require('del');
 const autoprefixer = require('autoprefixer');
+const stylelint = require('stylelint');
 const server = require('browser-sync').create();
 
 const $ = gulpLoadPlugins();
@@ -52,7 +53,7 @@ function styles(cb) {
 				includePaths: ['.']
 			}))
 			// Why postcss? https://stackoverflow.com/a/42317592
-			.pipe($.postcss([ autoprefixer(config.browserList) ]))
+			.pipe($.postcss([ autoprefixer(config.browserList), stylelint() ]))
 			.pipe(dest(config.styles.dest, { sourcemaps: '.' }))
 			.pipe(server.reload({ stream: true }));
 

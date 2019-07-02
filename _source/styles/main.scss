@@ -23,11 +23,6 @@ body {
 }
 
 
-
-::placeholder {
-	color: gray;
-}
-
 @media (min-resolution: 2dppx) {
 	.image {
 	  background-image: url(image@2x.png);
