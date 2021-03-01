@@ -11,7 +11,9 @@ body {
 		grid-template-columns: 1fr 1fr;
 	}
 }
-
+.dummy {
+	background: pink;
+}
 .something {
 	background: pink;
 
@@ -20,9 +22,6 @@ body {
 	}
 }
 
-::placeholder {
-	color: gray;
-}
 
 @media (min-resolution: 2dppx) {
 	.image {

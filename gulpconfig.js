@@ -35,7 +35,7 @@ module.exports = {
             "_source/images/**/*"
         ],
         "templates": [
-            "templates/**/*.html"
+            "_source/templates/**/*.html"
         ]
 	},
 
@@ -43,6 +43,15 @@ module.exports = {
 	styles: {
 		src: './_source/styles/*.{scss,sass,css}',
 		dest: './build/assets/css',
+	},
+
+	// Scripts options
+	scripts: {
+		src: [
+			'./_source/scripts/partials/**/*.js',
+			'./_source/scripts/app.js'
+		],
+		dest: './build/assets/js',
 	},
 
 	browserList: {
@@ -55,14 +64,7 @@ module.exports = {
 		]
 	},
 
-	// Scripts options
-	scripts: {
-		src: [
-			'./_source/scripts/partials/**/*.js',
-			'./_source/scripts/app.js'
-		],
-		dest: './build/assets/js',
-	},
+
 
 	// Templating options
 	templates: {
