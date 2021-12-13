@@ -6,12 +6,12 @@ var TestClass = function TestClass() {
   _classCallCheck(this, TestClass);
 
   this.dummyClass = 'Something';
+  console.log('hello test class');
 };
 "use strict";
 
 // Dummy script
 (function ($) {
-  console.log('Say hello to my little friend!');
-  $('body').css('font-family', 'sans-serif');
+  console.log('Hellow world!');
 })(jQuery);
 //# sourceMappingURL=main.js.map

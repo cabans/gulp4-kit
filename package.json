@@ -18,6 +18,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-load-plugins": "^1.2.4",
     "gulp-notify": "^3.2.0",
+    "gulp-nunjucks-render": "^2.2.3",
     "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^8.0.0",
     "gulp-sass": "^4.0.2",
@@ -54,7 +55,7 @@
   },
   "version": "0.0.3",
   "stylelint": {
-	"syntax": "scss",
+    "syntax": "scss",
     "extends": "stylelint-config-standard",
     "rules": {
       "at-rule-empty-line-before": null

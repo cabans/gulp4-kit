@@ -35,7 +35,7 @@ module.exports = {
             "_source/images/**/*"
         ],
         "templates": [
-            "_source/templates/**/*.html"
+            "_source/templates/**/*.njk"
         ]
 	},
 
@@ -68,9 +68,12 @@ module.exports = {
 
 	// Templating options
 	templates: {
-		base: './_source/templates',
-		src: './_source/templates/**/*.{html,htm}',
-		dest: './build'
+		base: '_source/templates/',
+        src: [
+                '_source/templates/*.njk',
+                '_source/templates/category-1/*.njk'
+            ],
+		dest: 'build'
 	},
 
 	// Extra moving moving

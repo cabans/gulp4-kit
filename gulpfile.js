@@ -13,7 +13,7 @@ const gulpLoadPlugins = require('gulp-load-plugins');
 const beeper = require('beeper');
 const del = require('del');
 const autoprefixer = require('autoprefixer');
-const stylelint = require('stylelint');
+// const stylelint = require('stylelint');
 const server = require('browser-sync').create();
 
 const $ = gulpLoadPlugins();
@@ -21,6 +21,12 @@ const $ = gulpLoadPlugins();
 // Is production
 const isProd = process.env.NODE_ENV === 'production';
 
+const customNunjucksEnv = {
+    // functions that process the passed arguments
+    filters: {},
+    // globals can be either variables or functions
+    globals: {}
+  };
 
 
 
@@ -53,9 +59,9 @@ function styles(cb) {
 				includePaths: ['.']
 			}))
 			// Why postcss? https://stackoverflow.com/a/42317592
-			.pipe($.postcss([ autoprefixer(config.browserList), stylelint() ]))
+			.pipe($.postcss([ autoprefixer(config.browserList) ]))
 			.pipe(dest(config.styles.dest, { sourcemaps: '.' }))
-			.pipe(server.reload({ stream: true }));
+			.pipe(server.stream());
 
 	} else {
 
@@ -105,7 +111,7 @@ function scripts(cb) {
 			.pipe($.babel({ presets: ['@babel/env'] }))
 			.pipe($.concat('main.js'))
 			.pipe(dest(config.scripts.dest, { sourcemaps: '.' }))
-			.pipe(server.reload({ stream: true }));
+			.pipe(server.stream());
 
 	} else {
 
@@ -135,8 +141,15 @@ function clean() {
 
 // Templates generation
 function templates() {
-	return src(config.templates.src)
-		.pipe(dest(config.templates.dest));
+	// return src(config.templates.src)
+    // 	.pipe(dest(config.templates.dest));
+
+    return src(config.templates.src)
+        .pipe($.nunjucksRender({
+            ext: ".html",
+            path: config.templates.base,
+        }))
+        .pipe(dest(config.templates.dest));
 };
 
 
@@ -147,7 +160,6 @@ function extra() {
 		base: config.folder.source
 	}).pipe(dest(config.folder.assets));
 };
-
 
 
 // Gets build folder size
@@ -162,17 +174,16 @@ function startServer() {
 	server.init({
 		server: {
 			baseDir: config.server.baseDir
-		},
-		notify: false,
-		port: config.server.port,
-
-		startPath: config.server.startPath,
-		open: config.server.open
+        },
+        files: ["build/**/*.*"]
+		// notify: false,
+		// port: config.server.port,
+		// startPath: config.server.startPath,
+		// open: config.server.open
 	});
 
 	watch(config.watch.styles, styles);
 	watch(config.watch.scripts, scripts);
-
 	watch(config.watch.templates, templates).on('change', server.reload); // Non static kit
 	watch(config.watch.extra, extra).on('change', server.reload);
 }
